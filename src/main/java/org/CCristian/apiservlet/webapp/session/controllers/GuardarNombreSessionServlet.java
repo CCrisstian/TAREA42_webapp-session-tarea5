@@ -22,6 +22,5 @@ public class GuardarNombreSessionServlet extends HttpServlet {
         }else {
             resp.sendRedirect(req.getContextPath() + "/index.jsp");
         }
-
     }
 }
