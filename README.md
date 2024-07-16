@@ -21,3 +21,100 @@
 - Clase servlet PerfilUsuarioServlet.
 - Imágenes screenshot del programa funcionando en el navegador.
 
+<h1>Resolución del Profesor</h1>
+
+Vista jsp index.jsp:
+```jsp
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Tarea 5: Session HTTP</title>
+    </head>
+    <body>
+        <h3>Tarea 5: Session HTTP</h3>
+        <p>Hola <%=session.getAttribute("nombre") != null? session.getAttribute("nombre"): "anónimo"%>, bienvenido a la tarea5.</p>
+
+        <form action="/webapp-session-tarea5/guardar-session" method="post">
+            <div>
+                <label for="color">Ingresa tu nombre de sesión</label>
+                <div>
+                    <input type="text" name="nombre">
+                </div>
+
+            </div>
+            <div>
+                <input type="submit" value="Enviar">
+            </div>
+
+        </form>
+    </body>
+</html>
+```
+
+Clase servlet GuardarNombreSessionServlet:
+```java
+package org.aguzman.apiservlet.webapp.session.tarea5.controllers;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+
+@WebServlet({"/guardar-session"})
+public class GuardarNombreSessionServlet extends HttpServlet {
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String nombre = req.getParameter("nombre");
+        req.getSession().setAttribute("nombre", nombre);
+        resp.sendRedirect(req.getContextPath() + "/perfil-usuario");
+    }
+}
+```
+
+Clase servlet PerfilUsuarioServlet:
+```java
+package org.aguzman.apiservlet.webapp.session.tarea5.controllers;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+@WebServlet({"/perfil-usuario"})
+public class PerfilUsuarioServlet extends HttpServlet {
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String nombre = "anónimo";
+        if (req.getSession().getAttribute("nombre") != null) {
+            nombre = (String) req.getSession().getAttribute("nombre");
+        }
+        try ( PrintWriter out = resp.getWriter()) {
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("    <head>");
+            out.println("        <meta charset=\"UTF-8\">");
+            out.println("        <title>Perfil del usuario</title>");
+            out.println("    </head>");
+            out.println("    <body>");
+            out.println("        <h1>Perfil del usuario " + nombre + "!</h1>");
+            out.println("        <ul>");
+            out.println("            <li>Username: " + nombre + "</li>");
+            out.println("        </ul>");
+            out.println("<p><a href=\"" + req.getContextPath() + "/index.jsp\">volver a index</a></p>");
+            out.println("    </body>");
+            out.println("</html>");
+        }
+    }
+}
+```
